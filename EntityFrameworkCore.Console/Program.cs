@@ -17,6 +17,7 @@ using var context = new FootballLeagueDbContext();
 // Aggregate Methods
 //await AggregateMethods();
 
+
 // Grouping and Aggregating
 var groupedTeams = context.Teams
     //.Where(q =>  q.Name == "") // Translate to a WHERE clause
