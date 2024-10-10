@@ -1,5 +1,6 @@
 ﻿//First we need an instance of context
 using EntityFrameworkCore.Data;
+using EntityFrameworkCore.Domain;
 using Microsoft.EntityFrameworkCore;
 
 using var context = new FootballLeagueDbContext();
@@ -32,13 +33,61 @@ using var context = new FootballLeagueDbContext();
 
 // No Tracking - EF Core tracks objects that are returned by queries. This is less useful in
 // disconnected applications like APIs and Web apps
-var teams = await context.Teams
-    .AsNoTracking()
-    .ToListAsync();
+// await NoTracking();
 
-foreach (var t in teams)
+// IQueryables vs List Types
+// await ListVsQueryable();
+
+async Task ListVsQueryable()
 {
-    Console.WriteLine(t.Name);
+    Console.WriteLine("Enter '1' for Team with Id 1 or '2' for teams that contain 'F.C.'");
+    var option = Convert.ToInt32(Console.ReadLine());
+    List<Team> teamsAsList = new List<Team>();
+
+    // After executing to ListAsync, the records are loaded into memory. Any operation is the done in memory
+    teamsAsList = await context.Teams.ToListAsync();
+    if (option == 1)
+    {
+        teamsAsList = teamsAsList.Where(q => q.TeamId == 1).ToList();
+    }
+    else if (option == 2)
+    {
+        teamsAsList = teamsAsList.Where(q => q.Name.Contains("F.C.")).ToList();
+    }
+
+    foreach (var t in teamsAsList)
+    {
+        Console.WriteLine(t.Name);
+    }
+    // Records stay as IQuerable until the ToListAsync is executed, then the final query is performed.
+    var teamsAsQueryable = context.Teams.AsQueryable();
+    if (option == 1)
+    {
+        teamsAsQueryable = teamsAsQueryable.Where(q => q.TeamId == 1);
+    }
+    else if (option == 2)
+    {
+        teamsAsQueryable = teamsAsQueryable.Where(q => q.Name.Contains("F.C."));
+    }
+
+    // Actual Query execution
+    teamsAsList = await teamsAsQueryable.ToListAsync();
+    foreach (var t in teamsAsList)
+    {
+        Console.WriteLine(t.Name);
+    }
+}
+
+async Task NoTracking()
+{
+    var teams = await context.Teams
+        .AsNoTracking()
+        .ToListAsync();
+
+    foreach (var t in teams)
+    {
+        Console.WriteLine(t.Name);
+    }
 }
 
 async Task ProjectionsAndSelect()
@@ -53,7 +102,6 @@ async Task ProjectionsAndSelect()
         Console.WriteLine($"{name.Name} - {name.TeamId}");
     }
 }
-
 
 async Task SkipAndTake()
 {
@@ -74,7 +122,6 @@ async Task SkipAndTake()
         page += 1;
     }
 }
-
 
 async Task OrderByMethods()
 {
@@ -111,8 +158,6 @@ async Task OrderByMethods()
     var minBy = context.Teams.MinBy(q => q.TeamId);
 }
 
-
-
 void GroupByMethod()
 {
     var groupedTeams = context.Teams
@@ -135,9 +180,6 @@ void GroupByMethod()
         }
     }
 }
-
-
-
 
 async Task AggregateMethods()
 {
@@ -177,6 +219,7 @@ async Task GetFilteredTeams()
         Console.WriteLine(item.Name);
     }
 }
+
 async Task GetAllTeams()
 {
     // SELECT * FROM teams
