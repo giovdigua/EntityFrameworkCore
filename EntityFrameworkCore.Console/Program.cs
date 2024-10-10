@@ -24,6 +24,30 @@ using var context = new FootballLeagueDbContext();
 // Ordering
 // OrderByMethods();
 
+// Skip and Take - Great for Paging
+// await SkipAndTake();
+
+async Task SkipAndTake()
+{
+    var recordCount = 3;
+    var page = 0;
+    var next = true;
+    while (next)
+    {
+        var teams = await context.Teams.Skip(page * recordCount).Take(recordCount).ToListAsync();
+        foreach (var item in teams)
+        {
+            Console.WriteLine(item.Name);
+        }
+        Console.WriteLine("Enter 'true' for the next set of records, 'false' to exit");
+        next = Convert.ToBoolean(Console.ReadLine());
+
+        if (!next) break;
+        page += 1;
+    }
+}
+
+
 async Task OrderByMethods()
 {
 
@@ -67,7 +91,12 @@ void GroupByMethod()
         //.Where(q =>  q.Name == "") // Translate to a WHERE clause
         .GroupBy(q => new { q.CreatedDate.Date }) // new only if more of groupby column
                                                   //.Where()// Translate to a HAVING clause
+                                                  //.ToList() // Use the executing method to load the results into memory before processing
         ;
+
+    // EF core can iterate through records on demand. Here, there is no executing method, but EF Core is bringing back records per iteration.
+    // This is convenient, but dangerous when you have several operation to complete per iteration.
+    // It is generally better to execute with ToList() and then operate on whatever is returned to memory.
     foreach (var group in groupedTeams)
     {
         Console.WriteLine(group.Key); // Key rappresent the key of the group by
