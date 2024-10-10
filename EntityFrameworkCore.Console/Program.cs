@@ -19,20 +19,66 @@ using var context = new FootballLeagueDbContext();
 
 
 // Grouping and Aggregating
-var groupedTeams = context.Teams
-    //.Where(q =>  q.Name == "") // Translate to a WHERE clause
-    .GroupBy(q => new { q.CreatedDate.Date }) // new only if more of groupby column
-    //.Where()// Translate to a HAVING clause
-    ;
-foreach (var group in groupedTeams)
+// GroupByMethod();
+
+// Ordering
+// OrderByMethods();
+
+async Task OrderByMethods()
 {
-    Console.WriteLine(group.Key); // Key rappresent the key of the group by
-    Console.WriteLine(group.Sum(q => q.TeamId));
-    foreach (var team in group)
+
+    var orderedTeams = await context.Teams
+        .OrderBy(q => q.Name)
+        .ToListAsync();
+
+    foreach (var item in orderedTeams)
     {
-        Console.WriteLine(team.Name);
+        Console.WriteLine(item.Name);
+    }
+
+    var descOrderedTeams = await context.Teams
+        .OrderByDescending(q => q.Name)
+        .ToListAsync();
+
+    foreach (var item in descOrderedTeams)
+    {
+        Console.WriteLine(item.Name);
+    }
+    // Getting the record with a Maximum value
+    var maxByDescendingOrder = await context.Teams
+        .OrderByDescending(q => q.TeamId)
+        .FirstOrDefaultAsync();
+    // or
+    var maxBy = context.Teams.MaxBy(q => q.TeamId);
+
+    // Getting the record with a Minimum value
+    var minByDescendingOrder = await context.Teams
+        .OrderBy(q => q.TeamId)
+        .FirstOrDefaultAsync();
+    // or
+    var minBy = context.Teams.MinBy(q => q.TeamId);
+}
+
+
+
+void GroupByMethod()
+{
+    var groupedTeams = context.Teams
+        //.Where(q =>  q.Name == "") // Translate to a WHERE clause
+        .GroupBy(q => new { q.CreatedDate.Date }) // new only if more of groupby column
+                                                  //.Where()// Translate to a HAVING clause
+        ;
+    foreach (var group in groupedTeams)
+    {
+        Console.WriteLine(group.Key); // Key rappresent the key of the group by
+        Console.WriteLine(group.Sum(q => q.TeamId));
+        foreach (var team in group)
+        {
+            Console.WriteLine(team.Name);
+        }
     }
 }
+
 
 
 
