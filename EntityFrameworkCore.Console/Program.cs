@@ -27,6 +27,24 @@ using var context = new FootballLeagueDbContext();
 // Skip and Take - Great for Paging
 // await SkipAndTake();
 
+// Select and Projections - more precise queries
+// await ProjectionsAndSelect();
+
+async Task ProjectionsAndSelect()
+{
+    var teamNames = await context.Teams
+        //.Select(q => q.Name) //One field
+        .Select(q => new TeamInfo { Name = q.Name, TeamId = q.TeamId }) // more than one
+        .ToListAsync();
+
+    foreach (var name in teamNames)
+    {
+        Console.WriteLine($"{name.Name} - {name.TeamId}");
+    }
+}
+
+
+
 async Task SkipAndTake()
 {
     var recordCount = 3;
@@ -224,4 +242,10 @@ async Task GetAllTeamsQuerySyntax()
     {
         Console.WriteLine(t.Name);
     }
+}
+
+class TeamInfo
+{
+    public int TeamId { get; set; }
+    public string Name { get; set; }
 }
