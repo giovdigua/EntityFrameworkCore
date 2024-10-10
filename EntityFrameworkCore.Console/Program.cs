@@ -30,6 +30,17 @@ using var context = new FootballLeagueDbContext();
 // Select and Projections - more precise queries
 // await ProjectionsAndSelect();
 
+// No Tracking - EF Core tracks objects that are returned by queries. This is less useful in
+// disconnected applications like APIs and Web apps
+var teams = await context.Teams
+    .AsNoTracking()
+    .ToListAsync();
+
+foreach (var t in teams)
+{
+    Console.WriteLine(t.Name);
+}
+
 async Task ProjectionsAndSelect()
 {
     var teamNames = await context.Teams
@@ -42,7 +53,6 @@ async Task ProjectionsAndSelect()
         Console.WriteLine($"{name.Name} - {name.TeamId}");
     }
 }
-
 
 
 async Task SkipAndTake()
