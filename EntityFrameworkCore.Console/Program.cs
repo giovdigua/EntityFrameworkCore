@@ -1,9 +1,14 @@
-﻿//First we need an instance of context
-using EntityFrameworkCore.Data;
+﻿using EntityFrameworkCore.Data;
 using EntityFrameworkCore.Domain;
 using Microsoft.EntityFrameworkCore;
 
+// First we need an instance of context
 using var context = new FootballLeagueDbContext();
+
+// For SQLite Users to see where the Database file gets created
+//Console.WriteLine(context.DbPath);
+
+#region Read Queries
 // Select all teams
 //await GetAllTeams();
 //await GetAllTeamsQuerySyntax();
@@ -37,6 +42,87 @@ using var context = new FootballLeagueDbContext();
 
 // IQueryables vs List Types
 // await ListVsQueryable();
+#endregion
+
+// Inserting Data 
+/* INSERT INTO Coaches (colos) VALUES (values) */
+
+// Simple Insert
+// await InsertOneRecord();
+
+// Loop Insert
+//await InsertWithLoop();
+
+// Batch Insert
+//await InsertRange();
+
+
+async Task InsertOneRecord()
+{
+
+    var newCoach = new Coach
+    {
+        Name = "Carletto Mazzone",
+        CreatedDate = DateTime.Now,
+    };
+    await context.Coaches.AddAsync(newCoach);
+    await context.SaveChangesAsync();
+}
+
+async Task InsertWithLoop()
+{
+    var newCoach = new Coach
+    {
+        Name = "Carletto Mazzone",
+        CreatedDate = DateTime.Now,
+    };
+
+    var newCoach1 = new Coach
+    {
+        Name = "Carlo Ancelotti",
+        CreatedDate = DateTime.Now,
+    };
+    List<Coach> coaches = new List<Coach>()
+    {
+        newCoach,
+        newCoach1,
+    };
+    foreach (var coache in coaches)
+    {
+        await context.AddAsync(coache);
+    }
+    Console.WriteLine(context.ChangeTracker.DebugView.LongView);
+    await context.SaveChangesAsync();// pass only at end 
+    Console.WriteLine(context.ChangeTracker.DebugView.LongView);
+    foreach (var coache in coaches)
+    {
+        Console.WriteLine($"{coache.Id} - {coache.Name}");
+    }
+}
+
+async Task InsertRange()
+{
+    var newCoach = new Coach
+    {
+        Name = "Carletto Mazzone",
+        CreatedDate = DateTime.Now,
+    };
+
+    var newCoach1 = new Coach
+    {
+        Name = "Carlo Ancelotti",
+        CreatedDate = DateTime.Now,
+    };
+    List<Coach> coaches = new List<Coach>()
+    {
+        newCoach,
+        newCoach1,
+    };
+
+    await context.Coaches.AddRangeAsync(coaches);
+    await context.SaveChangesAsync();
+}
+
 
 async Task ListVsQueryable()
 {
