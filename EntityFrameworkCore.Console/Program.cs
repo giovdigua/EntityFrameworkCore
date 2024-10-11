@@ -56,6 +56,34 @@ using var context = new FootballLeagueDbContext();
 // Batch Insert
 //await InsertRange();
 
+// Update Operations
+//await UpdateWithTracking();
+//await UpdateNoTracking();
+
+
+async Task UpdateWithTracking()
+{
+    var coach = await context.Coaches.FindAsync(3);
+    coach.Name = "Trevoir Wiliams";
+    coach.CreatedDate = DateTime.Now;
+    await context.SaveChangesAsync();
+}
+async Task UpdateNoTracking()
+{
+    var coach1 = await context.Coaches
+        .AsNoTracking()
+        .FirstOrDefaultAsync(q => q.Id == 4);
+    coach1.Name = "No Tracking";
+
+    Console.WriteLine(context.ChangeTracker.DebugView.LongView);
+    context.Update(coach1); // so force to track again
+                            //context.Entry(coach1).State = EntityState.Modified; // same as above
+    Console.WriteLine(context.ChangeTracker.DebugView.LongView);
+    await context.SaveChangesAsync();
+    Console.WriteLine(context.ChangeTracker.DebugView.LongView);
+}
+
+
 
 async Task InsertOneRecord()
 {
