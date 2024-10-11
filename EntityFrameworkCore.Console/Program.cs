@@ -44,6 +44,7 @@ using var context = new FootballLeagueDbContext();
 // await ListVsQueryable();
 #endregion
 
+#region Write Queries
 // Inserting Data 
 /* INSERT INTO Coaches (colos) VALUES (values) */
 
@@ -63,11 +64,34 @@ using var context = new FootballLeagueDbContext();
 // Delete Operations
 //await DeleteRecord();
 
+// Excute Delete ef >=7
+//await ExcuteDelete();
+
+
+// Excute Update ef >=7
+//await ExcuteUpdate();
+
+#endregion
+
+
+async Task ExcuteDelete()
+{
+    var coaches = await context.Coaches.Where(q => q.Name == "No Tracking").ExecuteDeleteAsync(); // Immediately no save change necessary
+}
+async Task ExcuteUpdate()
+{
+    var coaches = await context.Coaches.Where(q => q.Name == "Jose Mourinho").ExecuteUpdateAsync(set => set
+            .SetProperty(prop => prop.Name, "Peppe Guardiola")
+    //.SetProperty(prop => prop.CreatedDate, DateTime.Now)
+    ); // Immediately no save change necessary
+}
+
 async Task DeleteRecord()
 {
     /*DELETE FROMCoaches WHERE Id = 1*/
     var coach = await context.Coaches.FindAsync(5);
     context.Remove(coach);
+    //context.Entry(coach).State = EntityState.Deleted; // Same as Above
     await context.SaveChangesAsync();
 }
 
