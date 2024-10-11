@@ -60,6 +60,18 @@ using var context = new FootballLeagueDbContext();
 //await UpdateWithTracking();
 //await UpdateNoTracking();
 
+// Delete Operations
+//await DeleteRecord();
+
+async Task DeleteRecord()
+{
+    /*DELETE FROMCoaches WHERE Id = 1*/
+    var coach = await context.Coaches.FindAsync(5);
+    context.Remove(coach);
+    await context.SaveChangesAsync();
+}
+
+
 
 async Task UpdateWithTracking()
 {
