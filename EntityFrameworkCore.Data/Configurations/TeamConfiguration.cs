@@ -19,18 +19,18 @@ namespace EntityFrameworkCore.Data.Configurations
                     {
                         Id = 1,
                         Name = "Tivoli Gardens FC",
-                        CreatedDate = DateTimeOffset.UtcNow.DateTime,
+                        CreatedDate = new DateTime(2024,10,10),
                     },
                     new Team
                     {
                         Id = 2,
                         Name = "Waterhouse F.C.",
-                        CreatedDate = DateTimeOffset.UtcNow.DateTime,
+                        CreatedDate = new DateTime(2024, 10, 10),
                     }, new Team
                     {
                         Id = 3,
                         Name = "Humble Lions F.C.",
-                        CreatedDate = DateTimeOffset.UtcNow.DateTime,
+                        CreatedDate = new DateTime(2024, 10, 10),
                     }
                 );
         }
