@@ -1,6 +1,8 @@
-﻿using EntityFrameworkCore.Domain;
+﻿using EntityFrameworkCore.Data.Configurations;
+using EntityFrameworkCore.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Reflection;
 
 namespace EntityFrameworkCore.Data
 {
@@ -14,6 +16,8 @@ namespace EntityFrameworkCore.Data
         }
         public DbSet<Team> Teams { get; set; }
         public DbSet<Coach> Coaches { get; set; }
+        public DbSet<League> Leagues { get; set; }
+        public DbSet<Match> Matches { get; set; }
         public string DBPath { get; private set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -29,25 +33,9 @@ namespace EntityFrameworkCore.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Team>().HasData(
-                    new Team
-                    {
-                        TeamId = 1,
-                        Name = "Tivoli Gardens FC",
-                        CreatedDate = DateTimeOffset.UtcNow.DateTime,
-                    },
-                    new Team
-                    {
-                        TeamId = 2,
-                        Name = "Waterhouse F.C.",
-                        CreatedDate = DateTimeOffset.UtcNow.DateTime,
-                    }, new Team
-                    {
-                        TeamId = 3,
-                        Name = "Humble Lions F.C.",
-                        CreatedDate = DateTimeOffset.UtcNow.DateTime,
-                    }
-                );
+            //modelBuilder.ApplyConfiguration(new TeamConfiguration());
+            //modelBuilder.ApplyConfiguration(new LeagueConfiguration());
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
     }
 }

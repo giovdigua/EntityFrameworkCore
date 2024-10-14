@@ -5,6 +5,10 @@ using Microsoft.EntityFrameworkCore;
 // First we need an instance of context
 using var context = new FootballLeagueDbContext();
 
+// Use to automatically apply all outstanding migrations
+// Carefully consider before using this approach in production.
+//context.Database.MigrateAsync();
+
 // For SQLite Users to see where the Database file gets created
 //Console.WriteLine(context.DbPath);
 
@@ -198,7 +202,7 @@ async Task ListVsQueryable()
     teamsAsList = await context.Teams.ToListAsync();
     if (option == 1)
     {
-        teamsAsList = teamsAsList.Where(q => q.TeamId == 1).ToList();
+        teamsAsList = teamsAsList.Where(q => q.Id == 1).ToList();
     }
     else if (option == 2)
     {
@@ -213,7 +217,7 @@ async Task ListVsQueryable()
     var teamsAsQueryable = context.Teams.AsQueryable();
     if (option == 1)
     {
-        teamsAsQueryable = teamsAsQueryable.Where(q => q.TeamId == 1);
+        teamsAsQueryable = teamsAsQueryable.Where(q => q.Id == 1);
     }
     else if (option == 2)
     {
@@ -244,12 +248,12 @@ async Task ProjectionsAndSelect()
 {
     var teamNames = await context.Teams
         //.Select(q => q.Name) //One field
-        .Select(q => new TeamInfo { Name = q.Name, TeamId = q.TeamId }) // more than one
+        .Select(q => new TeamInfo { Name = q.Name, Id = q.Id }) // more than one
         .ToListAsync();
 
     foreach (var name in teamNames)
     {
-        Console.WriteLine($"{name.Name} - {name.TeamId}");
+        Console.WriteLine($"{name.Name} - {name.Id}");
     }
 }
 
@@ -295,17 +299,17 @@ async Task OrderByMethods()
     }
     // Getting the record with a Maximum value
     var maxByDescendingOrder = await context.Teams
-        .OrderByDescending(q => q.TeamId)
+        .OrderByDescending(q => q.Id)
         .FirstOrDefaultAsync();
     // or
-    var maxBy = context.Teams.MaxBy(q => q.TeamId);
+    var maxBy = context.Teams.MaxBy(q => q.Id);
 
     // Getting the record with a Minimum value
     var minByDescendingOrder = await context.Teams
-        .OrderBy(q => q.TeamId)
+        .OrderBy(q => q.Id)
         .FirstOrDefaultAsync();
     // or
-    var minBy = context.Teams.MinBy(q => q.TeamId);
+    var minBy = context.Teams.MinBy(q => q.Id);
 }
 
 void GroupByMethod()
@@ -323,7 +327,7 @@ void GroupByMethod()
     foreach (var group in groupedTeams)
     {
         Console.WriteLine(group.Key); // Key rappresent the key of the group by
-        Console.WriteLine(group.Sum(q => q.TeamId));
+        Console.WriteLine(group.Sum(q => q.Id));
         foreach (var team in group)
         {
             Console.WriteLine(team.Name);
@@ -337,17 +341,17 @@ async Task AggregateMethods()
     var numberOfTeams = await context.Teams.CountAsync();
     Console.WriteLine($"Number of Teams: {numberOfTeams}");
 
-    var numberOfTeamsWithConditions = await context.Teams.CountAsync(q => q.TeamId == 1);
+    var numberOfTeamsWithConditions = await context.Teams.CountAsync(q => q.Id == 1);
     Console.WriteLine($"Number of Teams with Conditions: {numberOfTeamsWithConditions}");
 
     // Max
-    var maxTeams = await context.Teams.MaxAsync(q => q.TeamId);
+    var maxTeams = await context.Teams.MaxAsync(q => q.Id);
     // Min
-    var minTeams = await context.Teams.MinAsync(q => q.TeamId);
+    var minTeams = await context.Teams.MinAsync(q => q.Id);
     // Average
-    var avgTeams = await context.Teams.AverageAsync(q => q.TeamId);
+    var avgTeams = await context.Teams.AverageAsync(q => q.Id);
     // Sum
-    var sumTeams = await context.Teams.SumAsync(q => q.TeamId);
+    var sumTeams = await context.Teams.SumAsync(q => q.Id);
 }
 
 async Task GetFilteredTeams()
@@ -397,12 +401,12 @@ async Task GetOneTeam()
 
 
     // Selecting a single record - First one in list that meets a condition
-    var teamFirstWithCondition = await context.Teams.FirstAsync(team => team.TeamId == 1);
+    var teamFirstWithCondition = await context.Teams.FirstAsync(team => team.Id == 1);
     if (teamFirstWithCondition != null)
     {
         Console.WriteLine(teamFirstWithCondition.Name);
     }
-    var teamFirsOrDefaulttWithCondition = await context.Teams.FirstOrDefaultAsync(team => team.TeamId == 1);
+    var teamFirsOrDefaulttWithCondition = await context.Teams.FirstOrDefaultAsync(team => team.Id == 1);
     if (teamFirsOrDefaulttWithCondition != null)
     {
         Console.WriteLine(teamFirsOrDefaulttWithCondition.Name);
@@ -414,12 +418,12 @@ async Task GetOneTeam()
     {
         Console.WriteLine(teamSingle.Name);
     }
-    var teamSingleWithCondition = await context.Teams.SingleAsync(team => team.TeamId == 2);
+    var teamSingleWithCondition = await context.Teams.SingleAsync(team => team.Id == 2);
     if (teamSingleWithCondition != null)
     {
         Console.WriteLine(teamSingleWithCondition.Name);
     }
-    var singleOrDefault = await context.Teams.SingleOrDefaultAsync(team => team.TeamId == 2);
+    var singleOrDefault = await context.Teams.SingleOrDefaultAsync(team => team.Id == 2);
     if (singleOrDefault != null)
     {
         Console.WriteLine(singleOrDefault.Name);
@@ -449,6 +453,6 @@ async Task GetAllTeamsQuerySyntax()
 
 class TeamInfo
 {
-    public int TeamId { get; set; }
+    public int Id { get; set; }
     public string Name { get; set; }
 }

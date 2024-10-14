@@ -3,6 +3,7 @@ using System;
 using EntityFrameworkCore.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EntityFrameworkCore.Data.Migrations
 {
     [DbContext(typeof(FootballLeagueDbContext))]
-    partial class FootballLeagueDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241014074546_RemoveTeamId")]
+    partial class RemoveTeamId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -38,9 +41,6 @@ namespace EntityFrameworkCore.Data.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int?>("TeamId")
-                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -71,29 +71,6 @@ namespace EntityFrameworkCore.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Leagues");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Jamaica Premiere League"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "English Premiere League"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "La Liga"
-                        });
                 });
 
             modelBuilder.Entity("EntityFrameworkCore.Domain.Match", b =>
@@ -167,7 +144,7 @@ namespace EntityFrameworkCore.Data.Migrations
                         {
                             Id = 1,
                             CoachId = 0,
-                            CreatedDate = new DateTime(2024, 10, 14, 8, 18, 41, 706, DateTimeKind.Unspecified).AddTicks(2456),
+                            CreatedDate = new DateTime(2024, 10, 14, 7, 45, 45, 752, DateTimeKind.Unspecified).AddTicks(3684),
                             LeagueId = 0,
                             ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Tivoli Gardens FC"
@@ -176,7 +153,7 @@ namespace EntityFrameworkCore.Data.Migrations
                         {
                             Id = 2,
                             CoachId = 0,
-                            CreatedDate = new DateTime(2024, 10, 14, 8, 18, 41, 706, DateTimeKind.Unspecified).AddTicks(2462),
+                            CreatedDate = new DateTime(2024, 10, 14, 7, 45, 45, 752, DateTimeKind.Unspecified).AddTicks(3692),
                             LeagueId = 0,
                             ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Waterhouse F.C."
@@ -185,7 +162,7 @@ namespace EntityFrameworkCore.Data.Migrations
                         {
                             Id = 3,
                             CoachId = 0,
-                            CreatedDate = new DateTime(2024, 10, 14, 8, 18, 41, 706, DateTimeKind.Unspecified).AddTicks(2463),
+                            CreatedDate = new DateTime(2024, 10, 14, 7, 45, 45, 752, DateTimeKind.Unspecified).AddTicks(3693),
                             LeagueId = 0,
                             ModifiedDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Name = "Humble Lions F.C."
