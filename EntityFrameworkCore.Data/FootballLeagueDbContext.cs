@@ -22,8 +22,8 @@ namespace EntityFrameworkCore.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseSqlServer("Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog=FootbalLeague_EFCore; Encrypt=False");
-            optionsBuilder.UseSqlite($"Data Source={DBPath}")
+            optionsBuilder.UseSqlServer("Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog=FootbalLeague_EFCore; Encrypt=False")
+            //optionsBuilder.UseSqlite($"Data Source={DBPath}")
                 //.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking) // for global no tracking
                 .LogTo(Console.WriteLine, LogLevel.Information)
                 //Not in productions

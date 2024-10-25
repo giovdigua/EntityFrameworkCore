@@ -76,6 +76,82 @@ using var context = new FootballLeagueDbContext();
 //await ExcuteUpdate();
 
 #endregion
+#region Related Data
+// Insert record with FK
+//var match = new Match
+//{
+//    AwayTeamId = 1,
+//    HomeTeamId = 2,
+//    HomeTeamScore = 0,
+//    AwayTeamScore = 0,
+//    Date = new DateTime(2024, 10, 1),
+//    TicketPrice = 20,
+//};
+//await context.AddAsync(match);
+//await context.SaveChangesAsync();
+
+//var match1 = new Match
+//{
+//    AwayTeamId = 10,
+//    HomeTeamId = 0,
+//    HomeTeamScore = 0,
+//    AwayTeamScore = 0,
+//    Date = new DateTime(2024, 10, 1),
+//    TicketPrice = 20,
+//};
+//await context.AddAsync(match1);
+//await context.SaveChangesAsync();
+
+// Insert Parent/Child
+
+//var team = new Team
+//{
+//    Name = "New Team",
+//    Coach = new Coach
+//    {
+//        Name = "Johnson"
+//    }
+
+//};
+//await context.AddAsync(team);
+//await context.SaveChangesAsync();
+
+// Insert Parent with Children
+var league = new League
+{
+    Name = "Serie A",
+    Teams = new List<Team>
+    {
+        new Team
+        {
+            Name = "Juventus",
+            Coach = new Coach
+            {
+                Name = "Juve Coach"
+            }
+        },
+        new Team
+        {
+            Name = "Ac Milan",
+            Coach = new Coach
+            {
+                Name = "Milan Coach"
+            }
+        },
+        new Team
+        {
+            Name = "AS Roma",
+            Coach = new Coach
+            {
+                Name = "Roma Coach"
+            }
+        },
+    }
+};
+await context.AddAsync(league);
+await context.SaveChangesAsync();
+
+#endregion
 
 
 async Task ExcuteDelete()
