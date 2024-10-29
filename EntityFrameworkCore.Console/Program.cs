@@ -97,7 +97,50 @@ using var context = new FootballLeagueDbContext();
 // Lazy Loading
 //await LazyLoadingEventData();
 
+// Filtering Includes
+// Get all teams and only home matches where they have scored
+//await FilteringIncludes();
+
+// Projections and Anonymous types
+//await AnonymousTypesAndRelatedData();
+
 #endregion
+
+async Task AnonymousTypesAndRelatedData()
+{
+    var teams = await context.Teams
+    .Select(q => new TeamDetails
+    {
+        TeamId = q.Id,
+        TeamName = q.Name,
+        CoachName = q.Coach.Name,
+        TotalHomeGoals = q.HomeMatches.Sum(x => x.HomeTeamScore),
+        TotalAwayGoals = q.AwayMatches.Sum(x => x.AwayTeamScore),
+    })
+    .ToListAsync();
+    foreach (var team in teams)
+    {
+        Console.WriteLine($"{team.TeamName} - {team.CoachName} | Home Goals: {team.TotalHomeGoals} | Away Goals: {team.TotalAwayGoals}");
+    }
+}
+async Task FilteringIncludes()
+{
+    //await InserMoreMatch();
+    var teams = await context.Teams
+        //.Where(q => q.HomeMatches.First().HomeTeamScore > 0) // Bad
+        .Include("Coach")
+        .Include(q => q.HomeMatches.Where(q => q.HomeTeamScore > 0)) // Good
+        .ToListAsync();
+
+    foreach (var team in teams)
+    {
+        Console.WriteLine($"{team.Name} - {team.Coach.Name}");
+        foreach (var match in team.HomeMatches)
+        {
+            Console.WriteLine($"Score {match.HomeTeamScore}");
+        }
+    }
+}
 
 async Task ExplicitLoadingData()
 {
@@ -179,6 +222,54 @@ async Task InsertMatch()
         TicketPrice = 20,
     };
     await context.AddAsync(match1);
+    await context.SaveChangesAsync();
+}
+
+async Task InserMoreMatch()
+{
+    var match1 = new Match
+    {
+        AwayTeamId = 2,
+        HomeTeamId = 3,
+        HomeTeamScore = 1,
+        AwayTeamScore = 0,
+        Date = new DateTime(2024, 10, 1),
+        TicketPrice = 20,
+    };
+    await context.SaveChangesAsync();
+
+    var match2 = new Match
+    {
+        AwayTeamId = 2,
+        HomeTeamId = 1,
+        HomeTeamScore = 1,
+        AwayTeamScore = 0,
+        Date = new DateTime(2024, 10, 1),
+        TicketPrice = 20,
+    };
+    await context.SaveChangesAsync();
+
+    var match3 = new Match
+    {
+        AwayTeamId = 1,
+        HomeTeamId = 3,
+        HomeTeamScore = 1,
+        AwayTeamScore = 0,
+        Date = new DateTime(2024, 10, 1),
+        TicketPrice = 20,
+    };
+    await context.SaveChangesAsync();
+
+    var match4 = new Match
+    {
+        AwayTeamId = 4,
+        HomeTeamId = 3,
+        HomeTeamScore = 0,
+        AwayTeamScore = 1,
+        Date = new DateTime(2024, 10, 1),
+        TicketPrice = 20,
+    };
+    await context.AddRangeAsync(match1, match2, match3, match4);
     await context.SaveChangesAsync();
 }
 async Task InsertTeamWithCoach()
@@ -610,4 +701,14 @@ class TeamInfo
 {
     public int Id { get; set; }
     public string Name { get; set; }
+}
+
+class TeamDetails
+{
+    public int TeamId { get; set; }
+    public string TeamName { get; set; }
+    public string CoachName { get; set; }
+
+    public int TotalHomeGoals { get; set; }
+    public int TotalAwayGoals { get; set; }
 }
