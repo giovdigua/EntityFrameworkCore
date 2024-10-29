@@ -1,6 +1,8 @@
 ﻿using EntityFrameworkCore.Data;
 using EntityFrameworkCore.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 // First we need an instance of context
 using var context = new FootballLeagueDbContext();
@@ -78,49 +80,128 @@ using var context = new FootballLeagueDbContext();
 #endregion
 #region Related Data
 // Insert record with FK
-//var match = new Match
-//{
-//    AwayTeamId = 1,
-//    HomeTeamId = 2,
-//    HomeTeamScore = 0,
-//    AwayTeamScore = 0,
-//    Date = new DateTime(2024, 10, 1),
-//    TicketPrice = 20,
-//};
-//await context.AddAsync(match);
-//await context.SaveChangesAsync();
-
-//var match1 = new Match
-//{
-//    AwayTeamId = 10,
-//    HomeTeamId = 0,
-//    HomeTeamScore = 0,
-//    AwayTeamScore = 0,
-//    Date = new DateTime(2024, 10, 1),
-//    TicketPrice = 20,
-//};
-//await context.AddAsync(match1);
-//await context.SaveChangesAsync();
+//await InsertMatch();
 
 // Insert Parent/Child
-
-//var team = new Team
-//{
-//    Name = "New Team",
-//    Coach = new Coach
-//    {
-//        Name = "Johnson"
-//    }
-
-//};
-//await context.AddAsync(team);
-//await context.SaveChangesAsync();
+//await InsertTeamWithCoach();
 
 // Insert Parent with Children
-var league = new League
+//await InsertLeagueWithTeams();
+
+// Eager Loading Data
+//await EagerLoadingData();
+
+// Explicit Loading Data
+//await ExplicitLoadingData();
+
+// Lazy Loading
+//await LazyLoadingEventData();
+
+#endregion
+
+async Task ExplicitLoadingData()
 {
-    Name = "Serie A",
-    Teams = new List<Team>
+    var league = await context.FindAsync<League>(1);
+    if (!league.Teams.Any())
+    {
+        Console.WriteLine("Teams have not been loaded");
+    }
+
+    await context.Entry(league)
+        .Collection(q => q.Teams)
+        .LoadAsync();
+
+    if (league.Teams.Any())
+    {
+        foreach (var team in league.Teams)
+        {
+            Console.WriteLine($"{team.Name}");
+        }
+    }
+}
+
+async Task LazyLoadingEventData()
+{
+    //var league = await context.FindAsync<League>(1);
+    //foreach (var team in league.Teams)
+    //{
+    //    Console.WriteLine($"{team.Name}");
+    //}
+
+    foreach (var league in context.Leagues)
+    {
+        foreach (var team in league.Teams)
+        {
+            Console.WriteLine($"{team.Name} - {team.Coach.Name}");
+        }
+    }
+}
+
+async Task EagerLoadingData()
+{
+    var leagues = await context.Leagues
+        //.Include("Teams") // firstr method
+        .Include(q => q.Teams) // second method
+        .ThenInclude(q => q.Coach)
+        .ToListAsync();
+
+    foreach (var league in leagues)
+    {
+        Console.WriteLine($"League - {league.Name}");
+        foreach (var team in league.Teams)
+        {
+            Console.WriteLine($"{team.Name} - {team.Coach.Name}");
+        }
+    }
+}
+
+async Task InsertMatch()
+{
+    var match = new Match
+    {
+        AwayTeamId = 1,
+        HomeTeamId = 2,
+        HomeTeamScore = 0,
+        AwayTeamScore = 0,
+        Date = new DateTime(2024, 10, 1),
+        TicketPrice = 20,
+    };
+    await context.AddAsync(match);
+    await context.SaveChangesAsync();
+
+    var match1 = new Match
+    {
+        AwayTeamId = 10,
+        HomeTeamId = 0,
+        HomeTeamScore = 0,
+        AwayTeamScore = 0,
+        Date = new DateTime(2024, 10, 1),
+        TicketPrice = 20,
+    };
+    await context.AddAsync(match1);
+    await context.SaveChangesAsync();
+}
+async Task InsertTeamWithCoach()
+{
+
+    var team = new Team
+    {
+        Name = "New Team",
+        Coach = new Coach
+        {
+            Name = "Johnson"
+        }
+
+    };
+    await context.AddAsync(team);
+    await context.SaveChangesAsync();
+}
+async Task InsertLeagueWithTeams()
+{
+    var league = new League
+    {
+        Name = "Serie A",
+        Teams = new List<Team>
     {
         new Team
         {
@@ -147,12 +228,10 @@ var league = new League
             }
         },
     }
-};
-await context.AddAsync(league);
-await context.SaveChangesAsync();
-
-#endregion
-
+    };
+    await context.AddAsync(league);
+    await context.SaveChangesAsync();
+}
 
 async Task ExcuteDelete()
 {
