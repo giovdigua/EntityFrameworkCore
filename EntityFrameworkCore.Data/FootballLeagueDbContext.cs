@@ -18,6 +18,7 @@ namespace EntityFrameworkCore.Data
         public DbSet<Coach> Coaches { get; set; }
         public DbSet<League> Leagues { get; set; }
         public DbSet<Match> Matches { get; set; }
+        public DbSet<TeamsAndLeaguesView> TeamsAndLeaguesView { get; set; }
         public string DBPath { get; private set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -37,6 +38,11 @@ namespace EntityFrameworkCore.Data
             //modelBuilder.ApplyConfiguration(new TeamConfiguration());
             //modelBuilder.ApplyConfiguration(new LeagueConfiguration());
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            modelBuilder.Entity<TeamsAndLeaguesView>().HasNoKey().ToView("vw_TeamsAndLeagues");
+            modelBuilder.HasDbFunction(typeof(FootballLeagueDbContext).GetMethod(nameof(GetEarliestTeamMatch), new[] { typeof(int) }))
+                .HasName("fn_GetEarliestMatch");
         }
+
+        public DateTime GetEarliestTeamMatch(int teamId) => throw new NotImplementedException();
     }
 }

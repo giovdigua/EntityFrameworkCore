@@ -1,5 +1,7 @@
 ﻿using EntityFrameworkCore.Data;
 using EntityFrameworkCore.Domain;
+using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -78,6 +80,7 @@ using var context = new FootballLeagueDbContext();
 //await ExcuteUpdate();
 
 #endregion
+
 #region Related Data
 // Insert record with FK
 //await InsertMatch();
@@ -105,6 +108,91 @@ using var context = new FootballLeagueDbContext();
 //await AnonymousTypesAndRelatedData();
 
 #endregion
+
+#region Raw SQL
+
+// Quering a Keyless Entity
+//await QueringKeylessEntityOrView();
+
+// Excecuting Raw SQL Safely
+//ExecuteRawSql()
+
+// Mixing with LINQ
+//RawSqlWithLinq();
+
+// Executing Stored Procedure
+var leagueId = 1;
+var league = context.Leagues
+    .FromSqlInterpolated($"EXEC dbo.StoredProcedureToGetLeagueNameHere {leagueId}");
+
+// Non-queryng statement
+var someTeamName = "New Team Name Here";
+var teamId = 4;
+var success = context.Database.ExecuteSqlInterpolated($"UPDATE Teams set Name = {someTeamName} where id = {teamId}");
+
+var teamToDelete = 4;
+var teamDeleteSuccess = context.Database.ExecuteSqlInterpolated($"EXCE dbo.DeleteTeam {teamToDelete}");
+
+// Query Scalar 
+var leaguesIds = context.Database.SqlQuery<int>($"SELECT Id FROM Leagues")
+    .ToList();
+
+// Excute User.Defined Query
+var earliestMatch = context.GetEarliestTeamMatch(1);
+
+#endregion
+
+void OtherRawQueris(string teamName)
+{
+    // FromSql()
+    var teams = context.Teams.FromSql($"SELECT * FROM Teams WHERE name = {teamName}");
+    foreach (var t in teams)
+    {
+        Console.WriteLine(t.Name);
+    }
+
+    // FromSqlInterpolated()
+    teams = context.Teams.FromSqlInterpolated($"SELECT * FROM Teams WHERE name = {teamName}");
+    foreach (var t in teams)
+    {
+        Console.WriteLine(t.Name);
+    }
+}
+
+void RawSqlWithLinq()
+{
+    var teamsList = context.Teams.FromSql($"SELECT * FROM Teams")
+    .Where(q => q.Id == 1)
+    .OrderBy(q => q.Id)
+    .Include("League")
+    .ToList();
+    foreach (var t in teamsList)
+    {
+        Console.WriteLine(t.Name);
+    }
+}
+void ExecuteRawSql()
+{ // FromSqlRaw()
+    Console.WriteLine("Enter Team Name: ");
+    var teamName = Console.ReadLine();
+    Console.WriteLine(teamName);
+    var teamNameParam = new SqlParameter("teamName", teamName);
+    var teams = context.Teams.FromSqlRaw($"SELECT * FROM Teams WHERE name = @teamName", teamNameParam);
+    foreach (var t in teams)
+    {
+        Console.WriteLine(t.Name);
+    }
+    OtherRawQueris(teamName);
+}
+async Task QueringKeylessEntityOrView()
+{
+    var details = await context.TeamsAndLeaguesView.ToListAsync();
+    foreach (var item in details)
+    {
+        Console.WriteLine($"{item.Name} - {item.LeagueName}");
+    }
+
+}
 
 async Task AnonymousTypesAndRelatedData()
 {
