@@ -16,6 +16,8 @@ namespace EntityFrameworkCore.Data.Configurations
         {
             builder.HasIndex(q => q.Name).IsUnique();
 
+            builder.ToTable("Teams", b => b.IsTemporal());
+
             builder.HasMany(m => m.HomeMatches)
                 .WithOne(q => q.HomeTeam)
                 .HasForeignKey(q => q.HomeTeamId)
