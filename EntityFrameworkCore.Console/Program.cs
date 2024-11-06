@@ -7,7 +7,9 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 // First we need an instance of context
-using var context = new FootballLeagueDbContext();
+var optionsBuilder = new DbContextOptionsBuilder<FootballLeagueDbContext>();
+optionsBuilder.UseSqlServer("Data Source=(LocalDb)\\MSSQLLocalDB;Initial Catalog=FootbalLeague_EFCore; Encrypt=False");
+using var context = new FootballLeagueDbContext(optionsBuilder.Options);
 
 // Use to automatically apply all outstanding migrations
 // Carefully consider before using this approach in production.
@@ -58,6 +60,7 @@ using var context = new FootballLeagueDbContext();
 
 // Simple Insert
 // await InsertOneRecord();
+await InsertOneRecordWithAudit();
 
 // Loop Insert
 //await InsertWithLoop();
@@ -120,27 +123,10 @@ using var context = new FootballLeagueDbContext();
 // Mixing with LINQ
 //RawSqlWithLinq();
 
-// Executing Stored Procedure
-var leagueId = 1;
-var league = context.Leagues
-    .FromSqlInterpolated($"EXEC dbo.StoredProcedureToGetLeagueNameHere {leagueId}");
-
-// Non-queryng statement
-var someTeamName = "New Team Name Here";
-var teamId = 4;
-var success = context.Database.ExecuteSqlInterpolated($"UPDATE Teams set Name = {someTeamName} where id = {teamId}");
-
-var teamToDelete = 4;
-var teamDeleteSuccess = context.Database.ExecuteSqlInterpolated($"EXCE dbo.DeleteTeam {teamToDelete}");
-
-// Query Scalar 
-var leaguesIds = context.Database.SqlQuery<int>($"SELECT Id FROM Leagues")
-    .ToList();
-
-// Excute User.Defined Query
-var earliestMatch = context.GetEarliestTeamMatch(1);
-
 #endregion
+
+
+
 
 void OtherRawQueris(string teamName)
 {
@@ -157,6 +143,26 @@ void OtherRawQueris(string teamName)
     {
         Console.WriteLine(t.Name);
     }
+
+    // Executing Stored Procedure
+    var leagueId = 1;
+    var league = context.Leagues
+        .FromSqlInterpolated($"EXEC dbo.StoredProcedureToGetLeagueNameHere {leagueId}");
+
+    // Non-queryng statement
+    var someTeamName = "New Team Name Here";
+    var teamId = 4;
+    var success = context.Database.ExecuteSqlInterpolated($"UPDATE Teams set Name = {someTeamName} where id = {teamId}");
+
+    var teamToDelete = 4;
+    var teamDeleteSuccess = context.Database.ExecuteSqlInterpolated($"EXCE dbo.DeleteTeam {teamToDelete}");
+
+    // Query Scalar 
+    var leaguesIds = context.Database.SqlQuery<int>($"SELECT Id FROM Leagues")
+        .ToList();
+
+    // Excute User.Defined Query
+    var earliestMatch = context.GetEarliestTeamMatch(1);
 }
 
 void RawSqlWithLinq()
@@ -468,6 +474,16 @@ async Task InsertOneRecord()
         CreatedDate = DateTime.Now,
     };
     await context.Coaches.AddAsync(newCoach);
+    await context.SaveChangesAsync();
+}
+
+async Task InsertOneRecordWithAudit()
+{
+    var newLeague = new League
+    {
+        Name = "New League With Audit"
+    };
+    await context.AddAsync(newLeague);
     await context.SaveChangesAsync();
 }
 
